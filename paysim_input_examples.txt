@@ -1,0 +1,18 @@
+[
+  {
+    "transaction_id": "example_fraud",
+    "step": 295,
+    "type": "CASH_OUT",
+    "amount": 172344.3,
+    "oldbalanceOrg": 172344.3,
+    "oldbalanceDest": 0.0
+  },
+  {
+    "transaction_id": "example_safe",
+    "step": 383,
+    "type": "PAYMENT",
+    "amount": 1259.67,
+    "oldbalanceOrg": 158953.0,
+    "oldbalanceDest": 0.0
+  }
+]
