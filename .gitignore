@@ -1,0 +1,27 @@
+# Documentation / Build Scripts
+TrustFed_PRD.pdf
+build_prd_pdf.py
+
+# Dependencies & Build Outputs
+**/node_modules/
+**/dist/
+**/dist-ssr/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
