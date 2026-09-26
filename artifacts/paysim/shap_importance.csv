@@ -1,0 +1,13 @@
+feature,mean_abs_shap
+amount_to_origin_balance,4.08934
+oldbalanceOrg,1.0510056
+step,0.5853613
+oldbalanceDest,0.56453174
+type_PAYMENT,0.5005399
+type_CASH_OUT,0.48655188
+amount,0.4432393
+type_TRANSFER,0.4198775
+amount_log,0.14226376
+type_CASH_IN,0.107902385
+type_DEBIT,0.0
+type_nan,0.0
