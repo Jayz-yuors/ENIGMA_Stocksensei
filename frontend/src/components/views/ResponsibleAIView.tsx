@@ -47,7 +47,7 @@ export const ResponsibleAIView: React.FC = () => {
         />
       </div>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         {subTab === 'privacy' && (
           <motion.div
             key="privacy"

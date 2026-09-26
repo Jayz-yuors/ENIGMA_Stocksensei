@@ -26,7 +26,15 @@ import { RiskScoringView } from './components/views/RiskScoringView';
 import { ResponsibleAIView } from './components/views/ResponsibleAIView';
 
 export function App() {
-  const [activeMainTab, setActiveMainTab] = useState<string>('upload');
+  const getInitialTab = () => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '');
+      if (['upload', 'network', 'training', 'scoring', 'governance'].includes(hash)) return hash;
+    }
+    return 'upload';
+  };
+
+  const [activeMainTab, setActiveMainTab] = useState<string>(getInitialTab);
   const [currentDataset, setCurrentDataset] = useState<DatasetStats | null>(null);
   
   // 3-Minute Demo State
@@ -169,7 +177,7 @@ export function App() {
 
         {/* Main Tab Content View with Dynamic Slide & Fade Transitions */}
         <main className="min-h-[520px]">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             {activeMainTab === 'upload' && (
               <motion.div
                 key="upload-view"

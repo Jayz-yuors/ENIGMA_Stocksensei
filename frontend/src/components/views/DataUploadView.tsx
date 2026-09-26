@@ -208,7 +208,7 @@ export const DataUploadView: React.FC<DataUploadViewProps> = ({
       </div>
 
       {/* Subtab Content with Animated Transitions */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         {subTab === 'upload' && (
           <motion.div
             key="upload"
