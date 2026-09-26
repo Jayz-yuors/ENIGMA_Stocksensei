@@ -2,256 +2,393 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, 
-  Database, 
-  Network, 
-  Cpu, 
-  ShieldAlert, 
-  Scale, 
   Lock, 
-  ExternalLink,
   Sparkles,
-  CheckCircle2,
-  AlertCircle
+  ArrowUpRight,
+  Database
 } from 'lucide-react';
 
 import { ParticlesBackground } from './components/react-bits/ParticlesBackground';
-import { DecryptedText } from './components/react-bits/DecryptedText';
-import { TabsNav } from './components/tabs/TabsNav';
+import { ModernTabsWithHover } from './components/tabs/ModernTabsWithHover';
 import { JudgeDemoBar } from './components/demo/JudgeDemoBar';
 
-import { DataUploadView, DatasetStats } from './components/views/DataUploadView';
-import { NetworkTopologyView } from './components/views/NetworkTopologyView';
-import { FederatedTrainingView } from './components/views/FederatedTrainingView';
-import { RiskScoringView } from './components/views/RiskScoringView';
-import { ResponsibleAIView } from './components/views/ResponsibleAIView';
+import { SilosAndNetworkView, DatasetStats } from './components/views/SilosAndNetworkView';
+import { FederatedEngineView } from './components/views/FederatedEngineView';
+import { IntelligenceAndGovView } from './components/views/IntelligenceAndGovView';
+
+import { Hero3DStage } from './components/hero/Hero3DStage';
+import { IntroPage } from './components/pages/IntroPage';
+import { ArrowLeft, ArrowRight, Home } from 'lucide-react';
 
 export function App() {
-  const getInitialTab = () => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.replace('#', '');
-      if (['upload', 'network', 'training', 'scoring', 'governance'].includes(hash)) return hash;
+  const parseHash = () => {
+    if (typeof window === 'undefined') return { page: 'intro', main: 'silos', sub: 'upload' };
+    const raw = window.location.hash.replace('#', '');
+    const [part1, part2] = raw.split('/');
+    
+    if (part1 === 'intro' || !part1) {
+      return { page: 'intro', main: 'silos', sub: 'upload' };
     }
-    return 'upload';
+    
+    const validMains = ['silos', 'engine', 'intelligence'];
+    const main = validMains.includes(part1) ? part1 : 'silos';
+    
+    let sub = part2;
+    if (main === 'silos' && (!sub || !['upload', 'schema', 'topology'].includes(sub))) sub = 'upload';
+    if (main === 'engine' && (!sub || !['training', 'secagg', 'privacy'].includes(sub))) sub = 'training';
+    if (main === 'intelligence' && (!sub || !['showdown', 'shap', 'fairness', 'audit'].includes(sub))) sub = 'showdown';
+    return { page: 'features', main, sub };
   };
 
-  const [activeMainTab, setActiveMainTab] = useState<string>(getInitialTab);
+  const initialParsed = parseHash();
+  const [pageMode, setPageMode] = useState<'intro' | 'features'>(initialParsed.page as 'intro' | 'features');
+  const [activeMainTab, setActiveMainTab] = useState<string>(initialParsed.main);
+  const [activeSubTab, setActiveSubTab] = useState<string>(initialParsed.sub);
   const [currentDataset, setCurrentDataset] = useState<DatasetStats | null>(null);
-  
+
+  // Typography Combination State (Auge Complete Family vs Inter vs Plus Jakarta)
+  const [fontCombo, setFontCombo] = useState<'auge' | 'inter' | 'jakarta'>('auge');
+
+  // Blue & Green Color Theme Palette Vibe
+  const [colorVibe, setColorVibe] = useState<'ocean-mint' | 'emerald-cyan'>('ocean-mint');
+
   // 3-Minute Demo State
-  const [demoStep, setDemoStep] = useState<number>(1);
+  const [demoStep, setDemoStep] = useState<number>(initialParsed.main === 'engine' ? 2 : initialParsed.main === 'intelligence' ? 3 : 1);
   const [isRunningAutoDemo, setIsRunningAutoDemo] = useState<boolean>(false);
 
-  const mainTabs = [
-    { 
-      id: 'upload', 
-      label: 'Institution Data Silos', 
-      icon: <Database className="w-4 h-4" />,
-      badge: currentDataset ? `${currentDataset.rowCount.toLocaleString()} rows` : 'Upload Required'
-    },
-    { 
-      id: 'network', 
-      label: 'Federated Topology', 
-      icon: <Network className="w-4 h-4" />,
-      badge: '4 Nodes'
-    },
-    { 
-      id: 'training', 
-      label: 'Live FL & SecAgg', 
-      icon: <Cpu className="w-4 h-4" />,
-      badge: 'FedAvg'
-    },
-    { 
-      id: 'scoring', 
-      label: 'Risk Scoring & SHAP', 
-      icon: <ShieldAlert className="w-4 h-4" />,
-      badge: 'The Showdown'
-    },
-    { 
-      id: 'governance', 
-      label: 'Responsible AI & Audit', 
-      icon: <Scale className="w-4 h-4" />,
-      badge: 'PRD §14'
-    },
-  ];
+  // Listen to hash change from browser or deep link
+  React.useEffect(() => {
+    const onHashChange = () => {
+      const parsed = parseHash();
+      setPageMode(parsed.page as 'intro' | 'features');
+      setActiveMainTab(parsed.main);
+      setActiveSubTab(parsed.sub);
+      if (parsed.main === 'silos') setDemoStep(1);
+      if (parsed.main === 'engine') setDemoStep(2);
+      if (parsed.main === 'intelligence') setDemoStep(3);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const handleSelectTab = (mainTabId: string, subTabId?: string) => {
+    setPageMode('features');
+    setActiveMainTab(mainTabId);
+
+    let resolvedSubTab = subTabId;
+    if (mainTabId === 'silos') {
+      if (!resolvedSubTab || !['upload', 'schema', 'topology'].includes(resolvedSubTab)) {
+        resolvedSubTab = 'upload';
+      }
+    } else if (mainTabId === 'engine') {
+      if (!resolvedSubTab || !['training', 'secagg', 'privacy'].includes(resolvedSubTab)) {
+        resolvedSubTab = 'training';
+      }
+    } else if (mainTabId === 'intelligence') {
+      if (!resolvedSubTab || !['showdown', 'shap', 'fairness', 'audit'].includes(resolvedSubTab)) {
+        resolvedSubTab = 'showdown';
+      }
+    }
+
+    if (resolvedSubTab) {
+      setActiveSubTab(resolvedSubTab);
+    }
+
+    if (mainTabId === 'silos') setDemoStep(1);
+    if (mainTabId === 'engine') setDemoStep(2);
+    if (mainTabId === 'intelligence') setDemoStep(3);
+
+    if (typeof window !== 'undefined') {
+      window.location.hash = resolvedSubTab ? `${mainTabId}/${resolvedSubTab}` : mainTabId;
+    }
+  };
+
+  const handleGoToIntro = () => {
+    setPageMode('intro');
+    if (typeof window !== 'undefined') {
+      window.location.hash = 'intro';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleGoToFeatures = () => {
+    setPageMode('features');
+    if (typeof window !== 'undefined') {
+      window.location.hash = activeSubTab ? `${activeMainTab}/${activeSubTab}` : activeMainTab;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const handleSelectDemoStep = (step: number) => {
     setDemoStep(step);
-    if (step === 1) setActiveMainTab('upload');
-    if (step === 2) setActiveMainTab('training');
-    if (step === 3) setActiveMainTab('scoring');
+    if (step === 1) handleSelectTab('silos', 'upload');
+    if (step === 2) handleSelectTab('engine', 'training');
+    if (step === 3) handleSelectTab('intelligence', 'showdown');
   };
 
   const handleToggleAutoDemo = () => {
+    if (pageMode !== 'features') {
+      setPageMode('features');
+    }
+
     if (isRunningAutoDemo) {
       setIsRunningAutoDemo(false);
       return;
     }
 
     setIsRunningAutoDemo(true);
-    // Minute 1: Silos
     handleSelectDemoStep(1);
 
     setTimeout(() => {
-      // Minute 2: Training
       handleSelectDemoStep(2);
-    }, 4000);
+    }, 4500);
 
     setTimeout(() => {
-      // Minute 3: Risk Scoring Showdown
       handleSelectDemoStep(3);
       setIsRunningAutoDemo(false);
-    }, 9000);
+    }, 10000);
+  };
+
+  const handleRunSimulationFromHero = () => {
+    handleSelectTab('engine', 'training');
   };
 
   return (
-    <div className="relative min-h-screen bg-[#070b14] text-slate-100 selection:bg-cyan-500/20 selection:text-cyan-300">
-      {/* Background Particles Network */}
-      <ParticlesBackground quantity={35} color="#06B6D4" />
+    <div className={`relative min-h-screen bg-transparent text-slate-900 selection:bg-emerald-500/20 selection:text-emerald-900 ${colorVibe === 'emerald-cyan' ? 'vibe-emerald-cyan' : 'vibe-ocean-mint'} ${fontCombo === 'auge' ? 'font-combo-auge' : fontCombo === 'inter' ? 'font-combo-inter' : 'font-combo-jakarta'}`}>
+      {/* Dynamic Luminous Floating Pastel Orbs */}
+      <ParticlesBackground quantity={45} />
 
       {/* Main Container */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Top Header Bar */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-800/80">
-          <div className="flex items-center gap-3.5">
-            <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 p-0.5 shadow-lg shadow-cyan-500/20">
-              <div className="h-full w-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-400">
-                <ShieldCheck className="w-6 h-6 animate-pulse" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-6">
+        
+        {/* Floating Top Navigation Bar matching Avela Reference */}
+        <header className="sticky top-4 z-40 flex items-center justify-between p-3.5 px-6 rounded-full bg-white/90 backdrop-blur-2xl border-2 border-blue-200/90 shadow-2xl shadow-emerald-500/15">
+          {/* Logo & Platform Name */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleGoToIntro}
+              className="flex items-center gap-3 cursor-pointer group text-left"
+            >
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-blue-600 via-cyan-500 to-emerald-500 p-0.5 shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                <div className="h-full w-full bg-white rounded-[10px] flex items-center justify-center text-emerald-600">
+                  <ShieldCheck className="w-5 h-5 animate-pulse" />
+                </div>
               </div>
-            </div>
-            <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-extrabold tracking-tight text-white">
-                  Trust<span className="text-cyan-400">Fed</span>
-                </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-cyan-950/80 text-cyan-300 border border-cyan-700/60">
+                <span className="text-xl font-extrabold tracking-tight text-slate-900 font-display">
+                  Trust<span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 bg-clip-text text-transparent">Fed</span>
+                </span>
+                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-gradient-to-r from-blue-100 to-emerald-100 text-emerald-800 border border-emerald-300">
                   MVP v1.0
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-emerald-300 bg-emerald-950/80 border border-emerald-700/60 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  SecAgg Active
-                </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Privacy-Preserving Federated Fraud Intelligence • PaySim Multi-Institution Network
-              </p>
+            </button>
+          </div>
+
+          {/* Center: Live Privacy Telemetry Pills + Font & Color Live Switchers */}
+          <div className="hidden lg:flex items-center gap-2 text-xs font-mono">
+            {/* Blue & Green Color Palette Live Switcher */}
+            <button
+              onClick={() => setColorVibe(prev => prev === 'ocean-mint' ? 'emerald-cyan' : 'ocean-mint')}
+              className="btn-3d-glass px-3.5 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-1.5 cursor-pointer text-emerald-800 hover:text-emerald-950 shadow-sm border-2 border-emerald-200 bg-emerald-50/60"
+              title="Click to toggle between bright Blue and Green themes: Ocean Mint and Emerald Cyan"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-blue-500 to-emerald-400 animate-pulse" />
+              <span className="text-[10px] uppercase font-bold text-slate-400">Color:</span>
+              <span className="font-extrabold text-emerald-700">
+                {colorVibe === 'ocean-mint' ? '🌊 Ocean Mint' : '🌲 Emerald Cyan'}
+              </span>
+            </button>
+
+            {/* Font Combination Live Toggle Button */}
+            <button
+              onClick={() => setFontCombo(prev => prev === 'auge' ? 'inter' : prev === 'inter' ? 'jakarta' : 'auge')}
+              className="btn-3d-glass px-3.5 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-1.5 cursor-pointer text-blue-800 hover:text-blue-950 shadow-sm border-2 border-blue-200 bg-blue-50/60"
+              title="Click to toggle font family between Auge, Inter, and Plus Jakarta"
+            >
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-[10px] uppercase font-bold text-slate-400">Font:</span>
+              <span className="font-extrabold text-blue-700">
+                {fontCombo === 'auge' ? 'Auge Complete' : fontCombo === 'inter' ? 'Inter + Mono' : 'Jakarta + DM'}
+              </span>
+            </button>
+
+            <div className="px-3 py-1.5 rounded-full bg-emerald-50 border-2 border-emerald-300 shadow-sm flex items-center gap-1.5 font-bold text-emerald-800">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-emerald-700 font-medium">Raw Records:</span>
+              <span className="text-emerald-600 font-extrabold">0</span>
+            </div>
+            <div className="px-3 py-1.5 rounded-full bg-blue-50 border-2 border-blue-300 shadow-sm flex items-center gap-1.5 font-bold text-blue-800">
+              <Lock className="w-3 h-3 text-blue-600" />
+              <span className="text-blue-700 font-medium">SecAgg+:</span>
+              <span className="text-blue-700 font-extrabold">3/3</span>
+            </div>
+            <div className="px-3 py-1.5 rounded-full bg-teal-50 border-2 border-teal-300 shadow-sm flex items-center gap-1.5 font-bold text-teal-800">
+              <span className="text-teal-700 font-medium">DP:</span>
+              <span className="text-teal-700 font-extrabold">ε=2.45</span>
             </div>
           </div>
 
-          {/* Quick System Telemetry */}
-          <div className="flex items-center gap-3 text-xs font-mono">
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="text-slate-400">Raw Data Exchanged:</span>
-              <span className="text-emerald-400 font-bold">0 records</span>
-            </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-2">
-              <Lock className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-slate-400">Privacy Budget:</span>
-              <span className="text-amber-400 font-bold">ε = 2.45</span>
-            </div>
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-3">
+            {pageMode === 'features' ? (
+              <>
+                <button
+                  onClick={handleGoToIntro}
+                  className="btn-3d-glass px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer text-slate-700"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Intro</span>
+                </button>
+                <button
+                  onClick={handleToggleAutoDemo}
+                  className="btn-3d-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{isRunningAutoDemo ? 'Pitch Playing...' : 'Run 3-Min Pitch'}</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleGoToFeatures}
+                className="btn-3d-primary px-5 py-2 rounded-full text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg"
+              >
+                <span>Let's Start</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </header>
 
-        {/* PRD §15 3-Minute Hackathon Demo Bar */}
-        <JudgeDemoBar
-          currentStep={demoStep}
-          onSelectStep={handleSelectDemoStep}
-          isRunningAutoDemo={isRunningAutoDemo}
-          onToggleAutoDemo={handleToggleAutoDemo}
-        />
+        {/* PAGE CONTENT ROUTER: INTRO PAGE VS FEATURES PLATFORM */}
+        <AnimatePresence mode="wait" initial={false}>
+          {pageMode === 'intro' ? (
+            <motion.div
+              key="intro-page-container"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+            >
+              <IntroPage
+                onStart={handleGoToFeatures}
+                onRunSimulation={handleRunSimulationFromHero}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="features-page-container"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
+              {/* 3 Main Tabs with Floating Hover Subtab Mega-Preview */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-2">
+                  <span className="text-xs font-mono uppercase text-blue-700 font-bold tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-600" />
+                    Interactive Platform Modules (Hover to preview all subtabs)
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+                    Zero Raw Customer Records Shared • PRD §9-§13
+                  </span>
+                </div>
 
-        {/* Main Tabs Navigation with Animated Indicator Pill */}
-        <div className="overflow-x-auto pb-1">
-          <TabsNav
-            tabs={mainTabs}
-            activeTab={activeMainTab}
-            onChange={(id) => {
-              setActiveMainTab(id);
-              if (id === 'upload') setDemoStep(1);
-              if (id === 'training') setDemoStep(2);
-              if (id === 'scoring') setDemoStep(3);
-            }}
-            variant="main"
-          />
-        </div>
-
-        {/* Main Tab Content View with Dynamic Slide & Fade Transitions */}
-        <main className="min-h-[520px]">
-          <AnimatePresence mode="wait" initial={false}>
-            {activeMainTab === 'upload' && (
-              <motion.div
-                key="upload-view"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                <DataUploadView
-                  onDatasetLoaded={(stats) => setCurrentDataset(stats)}
-                  currentDataset={currentDataset}
+                <ModernTabsWithHover
+                  activeMainTab={activeMainTab}
+                  activeSubTab={activeSubTab}
+                  onSelectTab={handleSelectTab}
                 />
-              </motion.div>
-            )}
+              </div>
 
-            {activeMainTab === 'network' && (
-              <motion.div
-                key="network-view"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                <NetworkTopologyView />
-              </motion.div>
-            )}
+              {/* Dynamic Animated Main View Switcher */}
+              <main className="min-h-[520px] pt-2">
+                <AnimatePresence mode="wait" initial={false}>
+                  {activeMainTab === 'silos' && (
+                    <motion.div
+                      key="silos-view"
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -14 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                    >
+                      <SilosAndNetworkView
+                        onDatasetLoaded={(stats) => setCurrentDataset(stats)}
+                        currentDataset={currentDataset}
+                        activeSubTab={activeSubTab}
+                        onSubTabChange={(subId) => setActiveSubTab(subId)}
+                      />
+                    </motion.div>
+                  )}
 
-            {activeMainTab === 'training' && (
-              <motion.div
-                key="training-view"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                <FederatedTrainingView />
-              </motion.div>
-            )}
+                  {activeMainTab === 'engine' && (
+                    <motion.div
+                      key="engine-view"
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -14 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                    >
+                      <FederatedEngineView
+                        activeSubTab={activeSubTab}
+                        onSubTabChange={(subId) => setActiveSubTab(subId)}
+                      />
+                    </motion.div>
+                  )}
 
-            {activeMainTab === 'scoring' && (
-              <motion.div
-                key="scoring-view"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                <RiskScoringView />
-              </motion.div>
-            )}
+                  {activeMainTab === 'intelligence' && (
+                    <motion.div
+                      key="intelligence-view"
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -14 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                    >
+                      <IntelligenceAndGovView
+                        activeSubTab={activeSubTab}
+                        onSubTabChange={(subId) => setActiveSubTab(subId)}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </main>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            {activeMainTab === 'governance' && (
-              <motion.div
-                key="governance-view"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                <ResponsibleAIView />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </main>
+        {/* Sleek Modern Footer matching reference image */}
+        <footer className="pt-12 pb-8 border-t border-slate-200/80 space-y-6">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-sm text-slate-700 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              Zero Customer Records Transmitted
+            </span>
+            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-sm text-slate-700 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-500" />
+              Diffie-Hellman SecAgg+ Masking
+            </span>
+            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-sm text-slate-700 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-teal-500" />
+              Rényi DP Differential Privacy (ε=2.45)
+            </span>
+            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-sm text-slate-700 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              NIST AI RMF Fairness & Drift Monitored
+            </span>
+          </div>
 
-        {/* Footer with Cryptographic Disclaimer from PRD §14 */}
-        <footer className="pt-8 pb-4 border-t border-slate-800/60 text-center text-xs text-slate-500">
-          <p>
-            TrustFed Hackathon Prototype • Flower Federated Averaging • PyTorch MLP • Differential Privacy (Opacus/Rényi)
-          </p>
-          <p className="text-[11px] text-slate-600 mt-1">
-            "Institutions collaborate on intelligence, not customer data." Designed for the ENIGMA Hackathon.
-          </p>
+          <div className="text-center text-xs text-slate-500 space-y-1">
+            <p className="font-bold text-slate-800">
+              TrustFed • Privacy-Preserving Federated Fraud Intelligence Architecture
+            </p>
+            <p className="text-[11px] text-slate-400 font-mono">
+              "Institutions collaborate on intelligence, never on customer records." Designed for the ENIGMA Hackathon.
+            </p>
+          </div>
         </footer>
+
       </div>
     </div>
   );

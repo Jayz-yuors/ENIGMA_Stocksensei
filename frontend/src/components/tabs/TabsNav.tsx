@@ -20,18 +20,12 @@ export const TabsNav: React.FC<TabsNavProps> = ({
   tabs,
   activeTab,
   onChange,
-  variant = 'main',
+  variant = 'sub',
   className = '',
 }) => {
-  const isMain = variant === 'main';
-
   return (
     <div
-      className={`relative flex items-center gap-1.5 p-1.5 rounded-2xl ${
-        isMain
-          ? 'bg-slate-900/80 border border-slate-800/80 backdrop-blur-md shadow-2xl'
-          : 'bg-slate-950/60 border border-slate-800/50 p-1 rounded-xl'
-      } ${className}`}
+      className={`relative flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/90 border-2 border-blue-200/90 shadow-lg shadow-emerald-500/10 backdrop-blur-xl ${className}`}
     >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
@@ -39,28 +33,24 @@ export const TabsNav: React.FC<TabsNavProps> = ({
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`relative flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-colors duration-200 z-10 cursor-pointer ${
+            className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs md:text-sm font-bold transition-all duration-200 z-10 cursor-pointer ${
               isActive
-                ? 'text-cyan-300 font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
+                ? 'text-white font-black drop-shadow-sm'
+                : 'text-slate-700 hover:text-blue-700 hover:bg-blue-50/70'
             }`}
           >
-            {/* Animated Pill Background */}
+            {/* Animated Bright Blue & Green 3D Pill Background */}
             {isActive && (
               <motion.div
-                layoutId={isMain ? 'activeMainTabPill' : 'activeSubTabPill'}
-                className={`absolute inset-0 rounded-xl ${
-                  isMain
-                    ? 'bg-gradient-to-r from-cyan-950/80 via-slate-800 to-blue-950/80 border border-cyan-500/40 shadow-[0_0_15px_-3px_rgba(6,182,212,0.3)]'
-                    : 'bg-slate-800/90 border border-slate-700/60'
-                }`}
-                transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                layoutId="activeSubTabPill"
+                className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-500 border border-cyan-300/60 shadow-[0_3.5px_0_#1d4ed8,0_8px_18px_rgba(37,99,235,0.35)]"
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
               />
             )}
 
             {/* Icon */}
             {tab.icon && (
-              <span className={`relative z-10 transition-transform duration-200 ${isActive ? 'scale-110 text-cyan-400' : 'opacity-70'}`}>
+              <span className={`relative z-10 transition-transform duration-200 ${isActive ? 'scale-110 text-white' : 'opacity-80 text-blue-600'}`}>
                 {tab.icon}
               </span>
             )}
@@ -71,10 +61,10 @@ export const TabsNav: React.FC<TabsNavProps> = ({
             {/* Badge */}
             {tab.badge !== undefined && (
               <span
-                className={`relative z-10 ml-1 px-1.5 py-0.5 text-[10px] font-mono rounded-full ${
+                className={`relative z-10 ml-1 px-1.5 py-0.5 text-[10px] font-mono rounded-full font-bold ${
                   isActive
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'bg-slate-800 text-slate-400'
+                    ? 'bg-white/25 text-white border border-white/40'
+                    : 'bg-blue-50 text-blue-700 border border-blue-200'
                 }`}
               >
                 {tab.badge}

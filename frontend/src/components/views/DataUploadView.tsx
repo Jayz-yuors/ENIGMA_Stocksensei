@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Papa from 'papaparse';
-import confetti from 'canvas-confetti';
 import { 
   Upload, 
   FileSpreadsheet, 
@@ -136,7 +135,6 @@ export const DataUploadView: React.FC<DataUploadViewProps> = ({
             onDatasetLoaded(stats);
             setIsParsing(false);
             setSubTab('stats');
-            confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
           } catch (err) {
             setUploadError('Error parsing CSV format. Please verify file schema.');
             setIsParsing(false);
@@ -178,7 +176,6 @@ export const DataUploadView: React.FC<DataUploadViewProps> = ({
 
     onDatasetLoaded(stats);
     setSubTab('stats');
-    confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
   };
 
   return (

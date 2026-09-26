@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, Sparkles, CheckCircle2, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Play, Sparkles, ShieldCheck, ChevronRight, ArrowRight } from 'lucide-react';
 import { DecryptedText } from '../react-bits/DecryptedText';
 
 interface JudgeDemoBarProps {
@@ -21,108 +21,122 @@ export const JudgeDemoBar: React.FC<JudgeDemoBarProps> = ({
       num: 1,
       time: 'Min 1',
       title: 'Data Silos & Isolation',
-      desc: 'Show 3 institutions with private PaySim data (Zero raw sharing)',
-      tabId: 'upload',
+      desc: '3 institutional silos with private records (Zero raw sharing)',
     },
     {
       num: 2,
       time: 'Min 2',
       title: 'Federated SecAgg + DP',
       desc: 'Flower FedAvg rounds, encrypted weights & ε-differential privacy',
-      tabId: 'training',
     },
     {
       num: 3,
       time: 'Min 3',
       title: 'The Fraud Showdown',
-      desc: 'Silo misses attack (24/100) vs TrustFed catches it (87/100 + SHAP)',
-      tabId: 'scoring',
+      desc: 'Silo misses attack (13/100) vs TrustFed catches it (87/100 + SHAP)',
     },
   ];
 
   return (
-    <div className="relative rounded-2xl bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-900/90 border border-cyan-500/20 p-3.5 shadow-xl backdrop-blur-md mb-6 overflow-hidden">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        {/* Left: Badge & Description */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-            <Sparkles className="h-5 w-5 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400">
-                PRD §15 Hackathon Demo Flow
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-800">
-                3-Minute Script
-              </span>
-            </div>
-            <p className="text-xs text-slate-300">
-              <DecryptedText text="Institutions collaborate on intelligence, never on customer records." />
-            </p>
-          </div>
-        </div>
+    <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-emerald-500/20 mb-6">
+      {/* Luminous Aurora Gradient Banner matching reference hero */}
+      <div className="relative p-6 sm:p-8 bg-gradient-to-r from-blue-700 via-cyan-600 to-emerald-600 text-white">
+        {/* Soft Radial Glow Specks */}
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-emerald-400/25 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 -mb-12 w-80 h-80 rounded-full bg-blue-400/30 blur-3xl pointer-events-none" />
 
-        {/* Middle: 3 Steps */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 max-w-2xl">
-          {steps.map((s) => {
-            const isCurrent = currentStep === s.num;
-            return (
-              <button
-                key={s.num}
-                onClick={() => onSelectStep(s.num)}
-                className={`relative flex items-center gap-2.5 p-2 rounded-xl text-left transition-all duration-300 cursor-pointer ${
-                  isCurrent
-                    ? 'bg-cyan-500/15 border border-cyan-500/40 text-cyan-200 shadow-md'
-                    : 'bg-slate-800/40 border border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
-                }`}
-              >
-                <div
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-mono font-bold ${
+        <div className="relative z-10 space-y-6">
+          {/* Top Row: Eyebrow Tag + Main Headline */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>PRD §15 Hackathon Pitch Walkthrough</span>
+                <span className="w-1 h-1 rounded-full bg-white" />
+                <span className="text-white/80">3-Minute Live Script</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+                Institutions collaborate on intelligence, never on customer records.
+              </h2>
+              <p className="text-sm text-white/85 max-w-2xl font-medium leading-relaxed">
+                TrustFed enables banks, digital wallets, lenders, and insurers to train joint fraud models with mathematical zero-knowledge privacy guarantees.
+              </p>
+            </div>
+
+            {/* Quick Action Button */}
+            <button
+              onClick={onToggleAutoDemo}
+              className={`shrink-0 flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full text-sm font-bold transition-all duration-300 cursor-pointer shadow-xl ${
+                isRunningAutoDemo
+                  ? 'bg-amber-400 text-slate-950 shadow-amber-400/30 hover:bg-amber-300'
+                  : 'bg-white text-emerald-950 hover:bg-slate-50 shadow-black/10 hover:shadow-2xl hover:scale-[1.03]'
+              }`}
+            >
+              {isRunningAutoDemo ? (
+                <>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-900 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-slate-950"></span>
+                  </span>
+                  Auto Playing Walkthrough...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 fill-current text-blue-600" />
+                  <span>Start 3-Min Pitch</span>
+                  <ArrowRight className="h-4 w-4 text-blue-400" />
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* 3 Step Interactive Cards: Frosted Glass */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+            {steps.map((s) => {
+              const isCurrent = currentStep === s.num;
+              return (
+                <button
+                  key={s.num}
+                  onClick={() => onSelectStep(s.num)}
+                  className={`relative flex items-start gap-3.5 p-3.5 rounded-2xl text-left transition-all duration-300 cursor-pointer ${
                     isCurrent
-                      ? 'bg-cyan-400 text-slate-950'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-white text-slate-900 shadow-xl shadow-black/10 scale-[1.02]'
+                      : 'bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-md'
                   }`}
                 >
-                  {s.num}
-                </div>
-                <div className="overflow-hidden">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold truncate">{s.title}</span>
+                  <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold shadow-sm ${
+                      isCurrent
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-white/20 text-white border border-white/30'
+                    }`}
+                  >
+                    0{s.num}
                   </div>
-                  <span className="text-[10px] text-slate-400 truncate block">
-                    {s.time} • {s.desc.slice(0, 32)}...
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+                  <div className="overflow-hidden">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-extrabold truncate ${isCurrent ? 'text-slate-900' : 'text-white'}`}>
+                        {s.title}
+                      </span>
+                      <span
+                        className={`text-[9px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                          isCurrent
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'bg-white/20 text-white'
+                        }`}
+                      >
+                        {s.time}
+                      </span>
+                    </div>
+                    <span className={`text-[11px] block mt-1 line-clamp-2 leading-snug ${isCurrent ? 'text-slate-600' : 'text-white/80'}`}>
+                      {s.desc}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-
-        {/* Right: Quick Action Button */}
-        <button
-          onClick={onToggleAutoDemo}
-          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 cursor-pointer shrink-0 ${
-            isRunningAutoDemo
-              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-lg shadow-amber-500/10'
-              : 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold hover:shadow-lg hover:shadow-cyan-500/25 hover:scale-[1.02]'
-          }`}
-        >
-          {isRunningAutoDemo ? (
-            <>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-              </span>
-              Auto Playing Demo...
-            </>
-          ) : (
-            <>
-              <Play className="h-3.5 w-3.5 fill-current" />
-              Start 3-Min Pitch
-            </>
-          )}
-        </button>
       </div>
     </div>
   );
