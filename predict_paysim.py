@@ -1,114 +1,234 @@
-import os
+"""Score one PaySim transaction with the already-trained artifact.
+
+Manual use:
+    python predict_paysim.py
+
+Website/backend use:
+    from predict_paysim import assess_transaction
+    result = assess_transaction(form_payload)
+
+JSON input use (one object or a list of objects):
+    python predict_paysim.py --input-json paysim_input_examples.txt
+
+The required input keys are derived from the saved model's feature list.
+For the current retrained artifact these are: step, type, amount,
+oldbalanceOrg, oldbalanceDest. Post-transaction balances are not requested.
+"""
+
+import argparse
+import json
+import math
+import sys
 from pathlib import Path
+
+import joblib
 import numpy as np
 import pandas as pd
-import joblib
 import shap
 
+
 ROOT = Path(__file__).parent
-MODEL_PATH = ROOT / "artifacts" / "paysim" / "model.joblib"
-
-_BUNDLE = None
-_EXPLAINER = None
-
-def get_paysim_bundle():
-    global _BUNDLE, _EXPLAINER
-    if _BUNDLE is None:
-        _BUNDLE = joblib.load(MODEL_PATH)
-        _EXPLAINER = shap.TreeExplainer(_BUNDLE["model"])
-    return _BUNDLE, _EXPLAINER
-
-def _finite_number(payload, name, minimum=None):
-    if name not in payload:
-        raise ValueError(f"Missing required field: {name}")
-    try:
-        value = float(payload[name])
-    except (TypeError, ValueError):
-        raise ValueError(f"{name} must be numeric") from None
-    if not np.isfinite(value):
-        raise ValueError(f"{name} must be finite")
-    if minimum is not None and value < minimum:
-        raise ValueError(f"{name} must be at least {minimum}")
-    return value
+ARTIFACT = ROOT / "artifacts" / "paysim" / "model.joblib"
+ALLOWED_TYPES = {"CASH_IN", "CASH_OUT", "DEBIT", "PAYMENT", "TRANSFER"}
+SOURCE_NUMBERS = ["step", "amount", "oldbalanceOrg", "oldbalanceDest",
+                  "newbalanceOrig", "newbalanceDest"]
 
 
-def assess_transaction(payload: dict) -> dict:
-    if not MODEL_PATH.is_file():
-        raise FileNotFoundError(f"PaySim model is missing: {MODEL_PATH.relative_to(ROOT)}")
+def required_input_fields(feature_columns):
+    required = {"step", "amount"}
+    columns = set(feature_columns)
+    if columns.intersection({"oldbalanceOrg", "amount_to_origin_balance", "origin_balance_remaining_ratio"}):
+        required.add("oldbalanceOrg")
+    if columns.intersection({"oldbalanceDest", "balance_change_destination"}):
+        required.add("oldbalanceDest")
+    if columns.intersection({"newbalanceOrig", "balance_change_origin", "origin_balance_remaining_ratio"}):
+        required.add("newbalanceOrig")
+    if columns.intersection({"newbalanceDest", "balance_change_destination"}):
+        required.add("newbalanceDest")
+    if any(name.startswith("type_") for name in feature_columns):
+        required.add("type")
+    return [field for field in ["step", "type", "amount", "oldbalanceOrg", "oldbalanceDest",
+                                "newbalanceOrig", "newbalanceDest"] if field in required]
 
-    required = ["step", "type", "amount", "oldbalanceOrg", "oldbalanceDest"]
-    missing = [name for name in required if name not in payload]
+
+def validate_payload(payload, feature_columns):
+    if not isinstance(payload, dict):
+        raise ValueError("Input must be a JSON object")
+    allowed = set(SOURCE_NUMBERS) | {"type", "transaction_id"}
+    extra = set(payload) - allowed
+    if extra:
+        raise ValueError(f"Unsupported input fields: {', '.join(sorted(extra))}. Do not send isFraud/isFlaggedFraud.")
+    required = set(required_input_fields(feature_columns))
+    missing = required - set(payload)
     if missing:
-        raise ValueError(f"Missing PaySim transaction inputs: {', '.join(missing)}")
+        raise ValueError(f"Missing required fields: {', '.join(sorted(missing))}")
 
-    step = int(_finite_number(payload, "step", minimum=1))
-    tx_type = str(payload["type"]).strip().upper()
-    valid_types = {"CASH_IN", "CASH_OUT", "DEBIT", "PAYMENT", "TRANSFER"}
-    if tx_type not in valid_types:
-        raise ValueError(f"Invalid transaction type '{tx_type}'. Must be one of: {', '.join(sorted(valid_types))}")
+    clean = {}
+    for field in SOURCE_NUMBERS:
+        if field not in payload:
+            continue
+        value = payload[field]
+        if isinstance(value, bool):
+            raise ValueError(f"{field} must be a number, not true/false")
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"{field} must be numeric") from None
+        if not math.isfinite(number):
+            raise ValueError(f"{field} must be finite")
+        if number < 0:
+            raise ValueError(f"{field} cannot be negative")
+        clean[field] = number
 
-    amount = _finite_number(payload, "amount", minimum=0.0)
-    oldbalance_org = _finite_number(payload, "oldbalanceOrg", minimum=0.0)
-    oldbalance_dest = _finite_number(payload, "oldbalanceDest", minimum=0.0)
+    if "step" not in clean or not clean["step"].is_integer() or clean["step"] < 1:
+        raise ValueError("step must be a positive whole number")
+    clean["step"] = int(clean["step"])
+    if "type" in required:
+        tx_type = str(payload["type"]).strip().upper()
+        if tx_type not in ALLOWED_TYPES:
+            raise ValueError(f"type must be one of: {', '.join(sorted(ALLOWED_TYPES))}")
+        clean["type"] = tx_type
+    tx_id = payload.get("transaction_id")
+    if tx_id is not None and not isinstance(tx_id, (str, int)):
+        raise ValueError("transaction_id must be a string or integer")
+    clean["transaction_id"] = tx_id
+    return clean
 
-    drain_ratio = (amount / oldbalance_org) if oldbalance_org > 0 else 0.0
-    is_dest_zero = 1 if oldbalance_dest == 0 else 0
 
-    features = pd.DataFrame([{
-        "step": step,
-        "amount": amount,
-        "oldbalanceOrg": oldbalance_org,
-        "oldbalanceDest": oldbalance_dest,
-        "drain_ratio": drain_ratio,
-        "is_dest_zero": is_dest_zero,
-        f"type_{tx_type}": 1,
-    }])
-
-    bundle, explainer = get_paysim_bundle()
-    encoded = features.reindex(columns=bundle["feature_columns"], fill_value=0)
-    encoded = encoded.replace([np.inf, -np.inf], np.nan).fillna(0)
-
-    raw = float(bundle["model"].predict_proba(encoded)[0, 1])
-    if bundle.get("calibrator") is not None:
-        clipped = float(np.clip(raw, 1e-6, 1 - 1e-6))
-        raw = float(bundle["calibrator"].predict_proba([[np.log(clipped / (1 - clipped))]])[0, 1])
-
-    threshold = float(bundle.get("decision_threshold", 0.40))
-
-    anomaly_score = None
-    if bundle.get("anomaly_model") is not None and bundle.get("anomaly_reference_scores") is not None:
-        score = float(bundle["anomaly_model"].decision_function(encoded)[0])
-        reference = np.asarray(bundle["anomaly_reference_scores"])
-        anomaly_score = float(1.0 - np.searchsorted(reference, score, side="right") / len(reference))
-
-    # SHAP explanations
-    shap_values = explainer(encoded)
-    values = np.asarray(shap_values.values)
-    impacts = values[0, :, -1] if values.ndim == 3 else values[0]
-    top_indices = np.argsort(np.abs(impacts))[::-1][:5]
-    names = list(bundle["feature_columns"])
-    factors = [
-        {
-            "feature": names[int(i)],
-            "impact_log_odds": float(impacts[i]),
-            "direction": "increases_risk" if impacts[i] > 0 else "decreases_risk",
-        }
-        for i in top_indices
-    ]
-
-    return {
-        "transaction_id": payload.get("transaction_id", f"TX-PAYSIM-{step}-{int(amount)}"),
-        "model": {"name": "PaySim Federated Fraud Risk Model", "artifact": "artifacts/paysim/model.joblib"},
-        "risk": {
-            "fraud_probability": round(raw, 4),
-            "risk_score": round(raw * 100, 2),
-            "decision_threshold": threshold,
-            "classification": "fraud" if raw >= threshold else "safe",
-            "anomaly_score": round(anomaly_score, 4) if anomaly_score is not None else None,
-        },
-        "risk_factors": factors,
-        "interpretation": (
-            "PaySim model screening result, not confirmed fraud. Anomaly score measures unusualness "
-            "relative to baseline peer transactions, not definitive fraud."
-        ),
+def make_features(transaction, feature_columns):
+    row = {
+        "step": transaction["step"],
+        "amount": transaction["amount"],
+        "amount_log": float(np.log1p(transaction["amount"])),
     }
+    for name in ["oldbalanceOrg", "newbalanceOrig", "oldbalanceDest", "newbalanceDest"]:
+        if name in transaction:
+            row[name] = transaction[name]
+    if "oldbalanceOrg" in transaction:
+        row["amount_to_origin_balance"] = transaction["amount"] / (abs(transaction["oldbalanceOrg"]) + 1.0)
+    if "oldbalanceOrg" in transaction and "newbalanceOrig" in transaction:
+        row["balance_change_origin"] = transaction["oldbalanceOrg"] - transaction["newbalanceOrig"]
+        row["origin_balance_remaining_ratio"] = transaction["newbalanceOrig"] / (abs(transaction["oldbalanceOrg"]) + 1.0)
+    if "oldbalanceDest" in transaction and "newbalanceDest" in transaction:
+        row["balance_change_destination"] = transaction["newbalanceDest"] - transaction["oldbalanceDest"]
+    for category in ALLOWED_TYPES:
+        row[f"type_{category}"] = int(transaction["type"] == category)
+    row["type_nan"] = 0
+    return pd.DataFrame([[row.get(col, 0.0) for col in feature_columns]], columns=feature_columns)
+
+
+def assess_transaction(payload, artifact_path=ARTIFACT):
+    """Return a JSON-serializable risk assessment for one website form payload."""
+    transaction = validate_payload(payload)
+    if not Path(artifact_path).is_file():
+        raise FileNotFoundError(f"Trained PaySim model not found: {artifact_path}")
+    bundle = joblib.load(artifact_path)
+    model = bundle["model"]
+    transaction = validate_payload(payload, bundle["feature_columns"])
+    features = make_features(transaction, bundle["feature_columns"])
+
+    raw_probability = float(model.predict_proba(features)[0, 1])
+    clipped = float(np.clip(raw_probability, 1e-6, 1 - 1e-6))
+    logit = np.array([[np.log(clipped / (1 - clipped))]])
+    probability = float(bundle["calibrator"].predict_proba(logit)[0, 1])
+    threshold = float(bundle["decision_threshold"])
+
+    anomaly_raw = float(bundle["anomaly_model"].decision_function(features)[0])
+    reference = np.asarray(bundle["anomaly_reference_scores"])
+    anomaly_score = float(1.0 - np.searchsorted(reference, anomaly_raw, side="right") / len(reference))
+
+    shap_result = shap.TreeExplainer(model)(features)
+    impacts = np.asarray(shap_result.values)
+    if impacts.ndim == 3:
+        impacts = impacts[0, :, -1]
+    else:
+        impacts = impacts[0]
+    names = list(bundle["feature_columns"])
+    top_indices = np.argsort(np.abs(impacts))[::-1][:5]
+    reasons = [{
+        "feature": names[int(index)],
+        "impact_log_odds": float(impacts[index]),
+        "direction": "increases_risk" if impacts[index] > 0 else "decreases_risk",
+    } for index in top_indices]
+
+    is_fraud_alert = probability >= threshold
+    post_transaction_features = {
+        "newbalanceOrig", "newbalanceDest", "balance_change_origin",
+        "balance_change_destination", "origin_balance_remaining_ratio",
+    }
+    uses_post_transaction_values = bool(
+        post_transaction_features.intersection(bundle["feature_columns"])
+    )
+    if uses_post_transaction_values:
+        model_limit = (
+            "This artifact uses post-transaction balance features. Do not use it for pre-authorization scoring."
+        )
+    else:
+        model_limit = (
+            "This artifact excludes post-transaction balances. Its result is still a model estimate, not ground-truth confirmation."
+        )
+    return {
+        "transaction_id": transaction["transaction_id"],
+        "model": {"name": "PaySim Transaction Risk Model", "artifact": "artifacts/paysim/model.joblib"},
+        "risk": {
+            "fraud_probability": probability,
+            # Keep enough precision that a very low but nonzero probability
+            # does not display as exactly 0.0 on the risk score scale.
+            "risk_score": round(probability * 100, 6),
+            "decision_threshold": threshold,
+            "classification": "fraud" if is_fraud_alert else "safe",
+            "anomaly_score": anomaly_score,
+        },
+        "transaction": {
+            "step": transaction["step"], "type": transaction["type"],
+            "amount": transaction["amount"],
+        },
+        "risk_factors": reasons,
+        "interpretation": "Fraud means the score met the model threshold; safe means it fell below that threshold. Neither is ground-truth confirmation. Anomaly score means unusualness, not fraud probability.",
+        "model_limit": model_limit,
+    }
+
+
+def read_interactive_payload(feature_columns):
+    required = required_input_fields(feature_columns)
+    print("Enter the transaction values. Choose the transaction type from this menu:")
+    type_choices = ["CASH_IN", "CASH_OUT", "DEBIT", "PAYMENT", "TRANSFER"]
+    for index, choice in enumerate(type_choices, start=1):
+        print(f"  {index}. {choice}")
+    choice_text = input("type choice (1-5): ").strip()
+    if not choice_text.isdigit() or not 1 <= int(choice_text) <= len(type_choices):
+        raise ValueError("type choice must be a number from 1 to 5")
+    payload = {"type": type_choices[int(choice_text) - 1]}
+    for field in required:
+        if field != "type":
+            payload[field] = input(f"{field}: ")
+    return payload
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Score a PaySim transaction and emit a risk JSON object")
+    parser.add_argument("--input-json", help="Path to a JSON file containing one transaction payload")
+    args = parser.parse_args()
+    try:
+        if args.input_json:
+            with open(args.input_json, "r", encoding="utf-8") as stream:
+                payload = json.load(stream)
+        elif sys.stdin.isatty():
+            bundle = joblib.load(ARTIFACT)
+            payload = read_interactive_payload(bundle["feature_columns"])
+        else:
+            payload = json.load(sys.stdin)
+        if isinstance(payload, list):
+            if not payload:
+                raise ValueError("Input list must contain at least one transaction")
+            result = [assess_transaction(item) for item in payload]
+        else:
+            result = assess_transaction(payload)
+        print(json.dumps(result, indent=2, allow_nan=False))
+    except (ValueError, FileNotFoundError, json.JSONDecodeError) as exc:
+        print(json.dumps({"error": str(exc)}, indent=2), file=sys.stderr)
+        raise SystemExit(2)
+
+
+if __name__ == "__main__":
+    main()

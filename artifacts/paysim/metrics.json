@@ -1,0 +1,30 @@
+{
+  "rows_fit": 3435836,
+  "rows_tuning": 1145265,
+  "rows_final_model_fit": 4581101,
+  "rows_calibration": 572625,
+  "rows_threshold": 572632,
+  "rows_test": 636262,
+  "train_fraud_rate": 0.001290872837499856,
+  "source_train_fraud_rate": 0.001290872837499856,
+  "test_fraud_rate": 0.0012903489443028186,
+  "roc_auc": 0.9997906045324645,
+  "pr_auc": 0.9744475284972888,
+  "log_loss": 0.0005680776666849852,
+  "brier_score": 0.0001586254802532494,
+  "threshold_selected_on_threshold_split": 0.00021307845083355946,
+  "precision_at_threshold": 0.24735729386892177,
+  "recall_at_threshold": 0.997563946406821,
+  "f1_at_threshold": 0.39641819941916745,
+  "true_positives": 819,
+  "false_positives": 2492,
+  "false_negatives": 2,
+  "tuning_pr_auc_best_candidate": 0.9721359972473671,
+  "selected_parameters": {
+    "n_estimators": 400,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "min_child_weight": 5
+  },
+  "split": "Official PaySim test CSV held out in full; training sample drawn only from train shards."
+}
