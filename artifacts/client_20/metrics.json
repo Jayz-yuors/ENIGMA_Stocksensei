@@ -1,0 +1,29 @@
+{
+  "rows_fit": 480533,
+  "rows_tuning": 159328,
+  "rows_calibration": 79817,
+  "rows_threshold": 80065,
+  "rows_test": 200257,
+  "train_fraud_rate": 0.07677591426245682,
+  "source_train_fraud_rate": 0.07677591426245682,
+  "test_fraud_rate": 0.07655662473721268,
+  "roc_auc": 0.7899948623549786,
+  "pr_auc": 0.3143985325225698,
+  "log_loss": 0.21536636352539062,
+  "brier_score": 0.058655995875597,
+  "threshold_selected_on_threshold_split": 0.17298991322517754,
+  "precision_at_threshold": 0.5358948432760364,
+  "recall_at_threshold": 0.3111343030461157,
+  "f1_at_threshold": 0.39369428854407396,
+  "true_positives": 4770,
+  "false_positives": 4131,
+  "false_negatives": 10561,
+  "tuning_pr_auc_best_candidate": 0.31895616225227363,
+  "selected_parameters": {
+    "n_estimators": 250,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "min_child_weight": 5
+  },
+  "split": "Insurance Client 20 uses a policy-grouped 80/20 split of rows 19,000,001 -> 20,000,000."
+}
