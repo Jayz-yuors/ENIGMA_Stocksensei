@@ -18,7 +18,19 @@ pnpm-debug.log*
 # Environment
 .env
 .env.*
+env
 !.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Large Archives
+*.zip
+*.tar.gz
 
 # IDE & OS
 .vscode/

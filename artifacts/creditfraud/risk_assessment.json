@@ -1,0 +1,275 @@
+{
+  "model_name": "credit_fraud_risk_model_client_01",
+  "target": "TARGET",
+  "metrics": {
+    "rows_total": 307511,
+    "rows_fit": 147604,
+    "rows_tuning": 49202,
+    "rows_calibration": 24601,
+    "rows_threshold": 24601,
+    "rows_test": 61503,
+    "train_fraud_rate": 0.08072908198107379,
+    "test_fraud_rate": 0.08072776937710356,
+    "roc_auc": 0.7687462347864533,
+    "pr_auc": 0.2587966717982446,
+    "log_loss": 0.24274401366710663,
+    "brier_score": 0.06707803159952164,
+    "threshold_selected": 0.15566246211528778,
+    "precision_at_threshold": 0.25503515671552857,
+    "recall_at_threshold": 0.4310171198388721,
+    "f1_at_threshold": 0.32045522611560345,
+    "true_positives": 2140,
+    "false_positives": 6251,
+    "false_negatives": 2825,
+    "tuning_pr_auc": 0.24268795782495609,
+    "selected_hyperparameters": {
+      "n_estimators": 500,
+      "max_depth": 6,
+      "learning_rate": 0.03,
+      "min_child_weight": 12
+    },
+    "all_candidates_evaluated": 14,
+    "all_candidates_summary": [
+      {
+        "candidate_id": 1,
+        "params": {
+          "n_estimators": 150,
+          "max_depth": 4,
+          "learning_rate": 0.08,
+          "min_child_weight": 3
+        },
+        "tuning_pr_auc": 0.23693756848186348
+      },
+      {
+        "candidate_id": 2,
+        "params": {
+          "n_estimators": 200,
+          "max_depth": 4,
+          "learning_rate": 0.05,
+          "min_child_weight": 5
+        },
+        "tuning_pr_auc": 0.2363166765493433
+      },
+      {
+        "candidate_id": 3,
+        "params": {
+          "n_estimators": 250,
+          "max_depth": 5,
+          "learning_rate": 0.05,
+          "min_child_weight": 5
+        },
+        "tuning_pr_auc": 0.23954245127216914
+      },
+      {
+        "candidate_id": 4,
+        "params": {
+          "n_estimators": 250,
+          "max_depth": 6,
+          "learning_rate": 0.05,
+          "min_child_weight": 5
+        },
+        "tuning_pr_auc": 0.24139201267845845
+      },
+      {
+        "candidate_id": 5,
+        "params": {
+          "n_estimators": 300,
+          "max_depth": 5,
+          "learning_rate": 0.03,
+          "min_child_weight": 5
+        },
+        "tuning_pr_auc": 0.23907138002663664
+      },
+      {
+        "candidate_id": 6,
+        "params": {
+          "n_estimators": 300,
+          "max_depth": 6,
+          "learning_rate": 0.03,
+          "min_child_weight": 10
+        },
+        "tuning_pr_auc": 0.2415454996759417
+      },
+      {
+        "candidate_id": 7,
+        "params": {
+          "n_estimators": 350,
+          "max_depth": 6,
+          "learning_rate": 0.05,
+          "min_child_weight": 15
+        },
+        "tuning_pr_auc": 0.2409112663853009
+      },
+      {
+        "candidate_id": 8,
+        "params": {
+          "n_estimators": 350,
+          "max_depth": 7,
+          "learning_rate": 0.03,
+          "min_child_weight": 10
+        },
+        "tuning_pr_auc": 0.24255918410194208
+      },
+      {
+        "candidate_id": 9,
+        "params": {
+          "n_estimators": 400,
+          "max_depth": 5,
+          "learning_rate": 0.04,
+          "min_child_weight": 8
+        },
+        "tuning_pr_auc": 0.24137948594575773
+      },
+      {
+        "candidate_id": 10,
+        "params": {
+          "n_estimators": 400,
+          "max_depth": 6,
+          "learning_rate": 0.02,
+          "min_child_weight": 10
+        },
+        "tuning_pr_auc": 0.24024644026066247
+      },
+      {
+        "candidate_id": 11,
+        "params": {
+          "n_estimators": 450,
+          "max_depth": 7,
+          "learning_rate": 0.02,
+          "min_child_weight": 15
+        },
+        "tuning_pr_auc": 0.2423360312165164
+      },
+      {
+        "candidate_id": 12,
+        "params": {
+          "n_estimators": 500,
+          "max_depth": 6,
+          "learning_rate": 0.03,
+          "min_child_weight": 12
+        },
+        "tuning_pr_auc": 0.24268795782495609
+      },
+      {
+        "candidate_id": 13,
+        "params": {
+          "n_estimators": 500,
+          "max_depth": 8,
+          "learning_rate": 0.02,
+          "min_child_weight": 20
+        },
+        "tuning_pr_auc": 0.24261978050753194
+      },
+      {
+        "candidate_id": 14,
+        "params": {
+          "n_estimators": 600,
+          "max_depth": 6,
+          "learning_rate": 0.02,
+          "min_child_weight": 15
+        },
+        "tuning_pr_auc": 0.2419875441168839
+      }
+    ],
+    "dataset_name": "creditfraud",
+    "split_description": "80/20 Stratified train/test split with disjoint fit/tune/calibration/threshold partitions"
+  },
+  "risk_output_fields": [
+    "fraud_probability",
+    "credit_risk_score",
+    "anomaly_score",
+    "severity_level",
+    "recommended_action",
+    "risk_factors",
+    "applicant_profile"
+  ],
+  "probability_calibration": "Platt/logistic calibration fitted on a group-disjoint calibration split.",
+  "global_top_shap_features": [
+    {
+      "feature": "EXT_SOURCE_3",
+      "mean_abs_shap": 0.3522665798664093
+    },
+    {
+      "feature": "EXT_SOURCE_2",
+      "mean_abs_shap": 0.3394555449485779
+    },
+    {
+      "feature": "CREDIT_TERM",
+      "mean_abs_shap": 0.15496669709682465
+    },
+    {
+      "feature": "AMT_GOODS_PRICE",
+      "mean_abs_shap": 0.15011760592460632
+    },
+    {
+      "feature": "EXT_SOURCE_1",
+      "mean_abs_shap": 0.14831684529781342
+    },
+    {
+      "feature": "AMT_ANNUITY",
+      "mean_abs_shap": 0.09201517701148987
+    },
+    {
+      "feature": "OWN_CAR_AGE",
+      "mean_abs_shap": 0.08732543885707855
+    },
+    {
+      "feature": "DAYS_EMPLOYED",
+      "mean_abs_shap": 0.08103159815073013
+    },
+    {
+      "feature": "CODE_GENDER_F",
+      "mean_abs_shap": 0.07442562282085419
+    },
+    {
+      "feature": "DAYS_BIRTH",
+      "mean_abs_shap": 0.06807424873113632
+    },
+    {
+      "feature": "AMT_CREDIT",
+      "mean_abs_shap": 0.05904785543680191
+    },
+    {
+      "feature": "NAME_EDUCATION_TYPE_Higher education",
+      "mean_abs_shap": 0.056822776794433594
+    },
+    {
+      "feature": "NAME_FAMILY_STATUS_Married",
+      "mean_abs_shap": 0.038956418633461
+    },
+    {
+      "feature": "DAYS_LAST_PHONE_CHANGE",
+      "mean_abs_shap": 0.03637034818530083
+    },
+    {
+      "feature": "DAYS_EMPLOYED_PERC",
+      "mean_abs_shap": 0.03432665765285492
+    },
+    {
+      "feature": "ANNUITY_INCOME_RATIO",
+      "mean_abs_shap": 0.03349985182285309
+    },
+    {
+      "feature": "FLAG_DOCUMENT_3",
+      "mean_abs_shap": 0.03266846761107445
+    },
+    {
+      "feature": "NAME_CONTRACT_TYPE_Cash loans",
+      "mean_abs_shap": 0.03252117335796356
+    },
+    {
+      "feature": "AMT_REQ_CREDIT_BUREAU_YEAR",
+      "mean_abs_shap": 0.031367603689432144
+    },
+    {
+      "feature": "CODE_GENDER_M",
+      "mean_abs_shap": 0.03130733221769333
+    }
+  ],
+  "risk_objects_in_sample_file": 500,
+  "limitations": [
+    "A model cannot guarantee zero false positives or false negatives.",
+    "Anomaly score is an unusualness index relative to normal applications, not a fraud probability.",
+    "Threshold must be tuned according to bank risk tolerance and operational capacity."
+  ]
+}

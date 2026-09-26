@@ -1,0 +1,173 @@
+{
+  "rows_total": 307511,
+  "rows_fit": 147604,
+  "rows_tuning": 49202,
+  "rows_calibration": 24601,
+  "rows_threshold": 24601,
+  "rows_test": 61503,
+  "train_fraud_rate": 0.08072908198107379,
+  "test_fraud_rate": 0.08072776937710356,
+  "roc_auc": 0.7687462347864533,
+  "pr_auc": 0.2587966717982446,
+  "log_loss": 0.24274401366710663,
+  "brier_score": 0.06707803159952164,
+  "threshold_selected": 0.15566246211528778,
+  "precision_at_threshold": 0.25503515671552857,
+  "recall_at_threshold": 0.4310171198388721,
+  "f1_at_threshold": 0.32045522611560345,
+  "true_positives": 2140,
+  "false_positives": 6251,
+  "false_negatives": 2825,
+  "tuning_pr_auc": 0.24268795782495609,
+  "selected_hyperparameters": {
+    "n_estimators": 500,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "min_child_weight": 12
+  },
+  "all_candidates_evaluated": 14,
+  "all_candidates_summary": [
+    {
+      "candidate_id": 1,
+      "params": {
+        "n_estimators": 150,
+        "max_depth": 4,
+        "learning_rate": 0.08,
+        "min_child_weight": 3
+      },
+      "tuning_pr_auc": 0.23693756848186348
+    },
+    {
+      "candidate_id": 2,
+      "params": {
+        "n_estimators": 200,
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "min_child_weight": 5
+      },
+      "tuning_pr_auc": 0.2363166765493433
+    },
+    {
+      "candidate_id": 3,
+      "params": {
+        "n_estimators": 250,
+        "max_depth": 5,
+        "learning_rate": 0.05,
+        "min_child_weight": 5
+      },
+      "tuning_pr_auc": 0.23954245127216914
+    },
+    {
+      "candidate_id": 4,
+      "params": {
+        "n_estimators": 250,
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "min_child_weight": 5
+      },
+      "tuning_pr_auc": 0.24139201267845845
+    },
+    {
+      "candidate_id": 5,
+      "params": {
+        "n_estimators": 300,
+        "max_depth": 5,
+        "learning_rate": 0.03,
+        "min_child_weight": 5
+      },
+      "tuning_pr_auc": 0.23907138002663664
+    },
+    {
+      "candidate_id": 6,
+      "params": {
+        "n_estimators": 300,
+        "max_depth": 6,
+        "learning_rate": 0.03,
+        "min_child_weight": 10
+      },
+      "tuning_pr_auc": 0.2415454996759417
+    },
+    {
+      "candidate_id": 7,
+      "params": {
+        "n_estimators": 350,
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "min_child_weight": 15
+      },
+      "tuning_pr_auc": 0.2409112663853009
+    },
+    {
+      "candidate_id": 8,
+      "params": {
+        "n_estimators": 350,
+        "max_depth": 7,
+        "learning_rate": 0.03,
+        "min_child_weight": 10
+      },
+      "tuning_pr_auc": 0.24255918410194208
+    },
+    {
+      "candidate_id": 9,
+      "params": {
+        "n_estimators": 400,
+        "max_depth": 5,
+        "learning_rate": 0.04,
+        "min_child_weight": 8
+      },
+      "tuning_pr_auc": 0.24137948594575773
+    },
+    {
+      "candidate_id": 10,
+      "params": {
+        "n_estimators": 400,
+        "max_depth": 6,
+        "learning_rate": 0.02,
+        "min_child_weight": 10
+      },
+      "tuning_pr_auc": 0.24024644026066247
+    },
+    {
+      "candidate_id": 11,
+      "params": {
+        "n_estimators": 450,
+        "max_depth": 7,
+        "learning_rate": 0.02,
+        "min_child_weight": 15
+      },
+      "tuning_pr_auc": 0.2423360312165164
+    },
+    {
+      "candidate_id": 12,
+      "params": {
+        "n_estimators": 500,
+        "max_depth": 6,
+        "learning_rate": 0.03,
+        "min_child_weight": 12
+      },
+      "tuning_pr_auc": 0.24268795782495609
+    },
+    {
+      "candidate_id": 13,
+      "params": {
+        "n_estimators": 500,
+        "max_depth": 8,
+        "learning_rate": 0.02,
+        "min_child_weight": 20
+      },
+      "tuning_pr_auc": 0.24261978050753194
+    },
+    {
+      "candidate_id": 14,
+      "params": {
+        "n_estimators": 600,
+        "max_depth": 6,
+        "learning_rate": 0.02,
+        "min_child_weight": 15
+      },
+      "tuning_pr_auc": 0.2419875441168839
+    }
+  ],
+  "dataset_name": "creditfraud",
+  "split_description": "80/20 Stratified train/test split with disjoint fit/tune/calibration/threshold partitions"
+}

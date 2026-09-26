@@ -489,7 +489,7 @@ export const SilosAndNetworkView: React.FC<SilosAndNetworkViewProps> = ({
           </motion.div>
         )}
 
-        {/* SUBTAB 2: SHARED SCHEMA ALIGNMENT */}
+        {/* SUBTAB 2: SHARED SCHEMA & FEATURE DICTIONARY */}
         {internalSubTab === 'schema' && (
           <motion.div
             key="subtab-schema"
@@ -499,61 +499,138 @@ export const SilosAndNetworkView: React.FC<SilosAndNetworkViewProps> = ({
             transition={{ duration: 0.2 }}
             className="space-y-4"
           >
-            <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-xl">
-              <h3 className="text-base font-extrabold text-slate-900 mb-1 flex items-center gap-2">
-                <FileSpreadsheet className="w-5 h-5 text-blue-600" />
-                Shared Feature Schema & Preprocessing Pipeline (PRD §9 & FR-2)
-              </h3>
-              <p className="text-xs text-slate-500 mb-5 font-medium">
-                Each institution normalizes and scales features locally before feeding into the PyTorch MLP:
-              </p>
+            <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900 mb-1 flex items-center gap-2">
+                    <FileSpreadsheet className="w-5 h-5 text-blue-600" />
+                    Feature Dictionary & Shared Schema Alignment (PRD §9 & FR-2)
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Strictly defined Frontend Labels and User-Friendly Technical Descriptions from Image 1 with UI Control rules from Image 2:
+                  </p>
+                </div>
+                <span className="text-[11px] font-mono text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 font-bold self-start sm:self-auto">
+                  Image 1 & 2 Compliant
+                </span>
+              </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-200 text-slate-500 font-mono">
-                      <th className="pb-3 font-semibold">PyTorch Feature Vector</th>
-                      <th className="pb-3 font-semibold">Data Type</th>
-                      <th className="pb-3 font-semibold">Mapped PaySim Field</th>
-                      <th className="pb-3 font-semibold">Local Preprocessing Rule</th>
-                      <th className="pb-3 font-semibold">Quarantine Status</th>
+                    <tr className="border-b-2 border-blue-200 text-blue-950 font-mono text-[11px] bg-blue-50/60">
+                      <th className="py-3 px-3 font-extrabold">Input</th>
+                      <th className="py-3 px-3 font-extrabold">Frontend Label (Image 1)</th>
+                      <th className="py-3 px-3 font-extrabold">User-Friendly Technical Description (Image 1)</th>
+                      <th className="py-3 px-3 font-extrabold">UI Control (Image 2)</th>
+                      <th className="py-3 px-3 font-extrabold">Local Preprocessing Rule</th>
+                      <th className="py-3 px-3 font-extrabold">Quarantine Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
-                    <tr>
-                      <td className="py-3 font-mono text-blue-700 font-bold">step / time_step</td>
-                      <td className="py-3 font-mono text-slate-500">Integer (1..744)</td>
-                      <td className="py-3 font-mono text-slate-800">step</td>
-                      <td className="py-3 text-slate-600">Temporal split boundary (train vs test)</td>
-                      <td className="py-3"><span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span></td>
+                    <tr className="hover:bg-blue-50/40">
+                      <td className="py-3.5 px-3 font-mono text-blue-700 font-extrabold whitespace-nowrap">
+                        ⏱️ step
+                      </td>
+                      <td className="py-3.5 px-3 font-extrabold text-slate-900 whitespace-nowrap">
+                        Transaction Time-Step
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600 leading-relaxed min-w-[280px]">
+                        The point in the transaction timeline when this transaction occurred. It helps the model understand the transaction's position in the activity sequence.
+                      </td>
+                      <td className="py-3.5 px-3 font-mono text-slate-700 font-bold whitespace-nowrap">
+                        Positive whole number
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600">
+                        Temporal split boundary (1..744 hours)
+                      </td>
+                      <td className="py-3.5 px-3">
+                        <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span>
+                      </td>
                     </tr>
-                    <tr>
-                      <td className="py-3 font-mono text-blue-700 font-bold">type (One-Hot)</td>
-                      <td className="py-3 font-mono text-slate-500">Categorical</td>
-                      <td className="py-3 font-mono text-slate-800">type</td>
-                      <td className="py-3 text-slate-600">TRANSFER, CASH_OUT, PAYMENT encoding</td>
-                      <td className="py-3"><span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span></td>
+
+                    <tr className="hover:bg-blue-50/40">
+                      <td className="py-3.5 px-3 font-mono text-blue-700 font-extrabold whitespace-nowrap">
+                        🔀 type
+                      </td>
+                      <td className="py-3.5 px-3 font-extrabold text-slate-900 whitespace-nowrap">
+                        Transaction Type
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600 leading-relaxed min-w-[280px]">
+                        The category of transaction being performed. Select the type that best describes the transaction.
+                      </td>
+                      <td className="py-3.5 px-3 font-mono text-slate-700 font-bold whitespace-nowrap">
+                        One of 5 Categories
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600">
+                        5-dim One-Hot encoding (TRANSFER, CASH_OUT, PAYMENT, CASH_IN, DEBIT)
+                      </td>
+                      <td className="py-3.5 px-3">
+                        <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span>
+                      </td>
                     </tr>
-                    <tr>
-                      <td className="py-3 font-mono text-blue-700 font-bold">amount</td>
-                      <td className="py-3 font-mono text-slate-500">Float ($)</td>
-                      <td className="py-3 font-mono text-slate-800">amount</td>
-                      <td className="py-3 text-slate-600">Log1p + RobustScaler scaling</td>
-                      <td className="py-3"><span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span></td>
+
+                    <tr className="hover:bg-blue-50/40">
+                      <td className="py-3.5 px-3 font-mono text-blue-700 font-extrabold whitespace-nowrap">
+                        💵 amount
+                      </td>
+                      <td className="py-3.5 px-3 font-extrabold text-slate-900 whitespace-nowrap">
+                        Transaction Amount
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600 leading-relaxed min-w-[280px]">
+                        The amount of money involved in this transaction. The model compares this amount with the account balances to identify unusual transaction patterns.
+                      </td>
+                      <td className="py-3.5 px-3 font-mono text-slate-700 font-bold whitespace-nowrap">
+                        Nonnegative number ($)
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600">
+                        Log1p transformation + RobustScaler scaling
+                      </td>
+                      <td className="py-3.5 px-3">
+                        <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span>
+                      </td>
                     </tr>
-                    <tr>
-                      <td className="py-3 font-mono text-blue-700 font-bold">deltaBalanceOrg</td>
-                      <td className="py-3 font-mono text-slate-500">Float ($)</td>
-                      <td className="py-3 font-mono text-slate-800">oldbalanceOrg, newbalanceOrig</td>
-                      <td className="py-3 text-slate-600">Synthesized delta (old - new balance)</td>
-                      <td className="py-3"><span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span></td>
+
+                    <tr className="hover:bg-blue-50/40">
+                      <td className="py-3.5 px-3 font-mono text-blue-700 font-extrabold whitespace-nowrap">
+                        🏦 oldbalanceOrg
+                      </td>
+                      <td className="py-3.5 px-3 font-extrabold text-slate-900 whitespace-nowrap">
+                        Sender Balance Before Transaction
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600 leading-relaxed min-w-[280px]">
+                        The amount available in the sender's account immediately before this transaction. This helps the model assess how large the transaction is relative to the sender's available balance.
+                      </td>
+                      <td className="py-3.5 px-3 font-mono text-slate-700 font-bold whitespace-nowrap">
+                        Nonnegative number ($)
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600">
+                        Synthesizes deltaBalanceOrg & draining ratio
+                      </td>
+                      <td className="py-3.5 px-3">
+                        <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span>
+                      </td>
                     </tr>
-                    <tr>
-                      <td className="py-3 font-mono text-blue-700 font-bold">isFraud (Target Label)</td>
-                      <td className="py-3 font-mono text-slate-500">Binary (0 / 1)</td>
-                      <td className="py-3 font-mono text-slate-800">isFraud</td>
-                      <td className="py-3 text-slate-600">Weighted binary cross-entropy local loss</td>
-                      <td className="py-3"><span className="text-[11px] text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 font-bold">Target</span></td>
+
+                    <tr className="hover:bg-blue-50/40">
+                      <td className="py-3.5 px-3 font-mono text-blue-700 font-extrabold whitespace-nowrap">
+                        🎯 oldbalanceDest
+                      </td>
+                      <td className="py-3.5 px-3 font-extrabold text-slate-900 whitespace-nowrap">
+                        Receiver Balance Before Transaction
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600 leading-relaxed min-w-[280px]">
+                        The amount available in the receiver's account immediately before this transaction. This helps the model understand the transaction in relation to the receiver's existing balance.
+                      </td>
+                      <td className="py-3.5 px-3 font-mono text-slate-700 font-bold whitespace-nowrap">
+                        Nonnegative number ($)
+                      </td>
+                      <td className="py-3.5 px-3 text-slate-600">
+                        Mule / burner account flag ($0 balance test)
+                      </td>
+                      <td className="py-3.5 px-3">
+                        <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">Client-Side</span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>

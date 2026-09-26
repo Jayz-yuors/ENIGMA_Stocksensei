@@ -1,0 +1,136 @@
+{
+  "model_name": "insurance_fraud_risk_model_client_02",
+  "target": "is_fraud_flagged_ground_truth",
+  "metrics": {
+    "rows_fit": 480424,
+    "rows_tuning": 160078,
+    "rows_calibration": 79828,
+    "rows_threshold": 79916,
+    "rows_test": 199754,
+    "train_fraud_rate": 0.07652646811105585,
+    "source_train_fraud_rate": 0.07652646811105585,
+    "test_fraud_rate": 0.07801595963034533,
+    "roc_auc": 0.7934537706226582,
+    "pr_auc": 0.3254711307015798,
+    "log_loss": 0.2164791375398636,
+    "brier_score": 0.059088099747896194,
+    "threshold_selected_on_threshold_split": 0.20837597101929306,
+    "precision_at_threshold": 0.555418856951124,
+    "recall_at_threshold": 0.3186601642710472,
+    "f1_at_threshold": 0.4049745158002039,
+    "true_positives": 4966,
+    "false_positives": 3975,
+    "false_negatives": 10618,
+    "tuning_pr_auc_best_candidate": 0.3113591399685693,
+    "selected_parameters": {
+      "n_estimators": 250,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "min_child_weight": 5
+    },
+    "split": "Insurance Client 02 uses a policy-grouped 80/20 split of rows 1,000,001 -> 2,000,000."
+  },
+  "risk_output_fields": [
+    "fraud_probability",
+    "claim_risk_score",
+    "anomaly_score",
+    "confidence",
+    "severity_level",
+    "risk_level",
+    "recommended_action",
+    "risk_factors",
+    "claim_profile",
+    "policy_behavior",
+    "temporal_behavior"
+  ],
+  "risk_output_explanation": "fraud_probability is calibrated with a held-out logistic calibration split; anomaly_score measures unusualness relative to normal fit rows; risk_factors are top SHAP contributions in base model log-odds.",
+  "probability_calibration": "Platt/logistic calibration fitted on a group-disjoint calibration split.",
+  "global_top_shap_features": [
+    {
+      "feature": "policyholder_tenure_years",
+      "mean_abs_shap": 0.7132686972618103
+    },
+    {
+      "feature": "claim_amount",
+      "mean_abs_shap": 0.36246293783187866
+    },
+    {
+      "feature": "claim_to_deductible_ratio",
+      "mean_abs_shap": 0.24912700057029724
+    },
+    {
+      "feature": "claim_type_renters",
+      "mean_abs_shap": 0.15950651466846466
+    },
+    {
+      "feature": "claim_type_auto",
+      "mean_abs_shap": 0.12023613601922989
+    },
+    {
+      "feature": "claim_type_business",
+      "mean_abs_shap": 0.09535807371139526
+    },
+    {
+      "feature": "claim_amount_log",
+      "mean_abs_shap": 0.072362020611763
+    },
+    {
+      "feature": "claim_type_property",
+      "mean_abs_shap": 0.05306994542479515
+    },
+    {
+      "feature": "claim_type_home",
+      "mean_abs_shap": 0.03833266347646713
+    },
+    {
+      "feature": "deductible",
+      "mean_abs_shap": 0.014850454404950142
+    },
+    {
+      "feature": "filing_delay_days",
+      "mean_abs_shap": 0.0072998423129320145
+    },
+    {
+      "feature": "previous_claims_count",
+      "mean_abs_shap": 0.0031348904594779015
+    },
+    {
+      "feature": "state_TX",
+      "mean_abs_shap": 0.002901931991800666
+    },
+    {
+      "feature": "state_IL",
+      "mean_abs_shap": 0.001915063476189971
+    },
+    {
+      "feature": "state_CA",
+      "mean_abs_shap": 0.0017015950288623571
+    },
+    {
+      "feature": "state_NY",
+      "mean_abs_shap": 0.0012895003892481327
+    },
+    {
+      "feature": "state_MA",
+      "mean_abs_shap": 0.0010253923246636987
+    },
+    {
+      "feature": "state_AZ",
+      "mean_abs_shap": 0.0009822022402659059
+    },
+    {
+      "feature": "state_NJ",
+      "mean_abs_shap": 0.0009084797347895801
+    },
+    {
+      "feature": "state_GA",
+      "mean_abs_shap": 0.0008544904412701726
+    }
+  ],
+  "risk_objects_in_sample_file": 500,
+  "limitations": [
+    "A model cannot guarantee zero false positives or false negatives.",
+    "Anomaly score is not a fraud probability.",
+    "Threshold must be selected for operational review costs before deployment."
+  ]
+}

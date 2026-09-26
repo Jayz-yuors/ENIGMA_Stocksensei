@@ -1,0 +1,29 @@
+{
+  "rows_fit": 480149,
+  "rows_tuning": 159939,
+  "rows_calibration": 79659,
+  "rows_threshold": 80300,
+  "rows_test": 199953,
+  "train_fraud_rate": 0.07634176492131087,
+  "source_train_fraud_rate": 0.07634176492131087,
+  "test_fraud_rate": 0.07719814156326736,
+  "roc_auc": 0.7975548501467598,
+  "pr_auc": 0.32401046625073116,
+  "log_loss": 0.21440967917442322,
+  "brier_score": 0.058549512177705765,
+  "threshold_selected_on_threshold_split": 0.1703151318430907,
+  "precision_at_threshold": 0.5421064204045735,
+  "recall_at_threshold": 0.31944804353459444,
+  "f1_at_threshold": 0.4020055437795532,
+  "true_positives": 4931,
+  "false_positives": 4165,
+  "false_negatives": 10505,
+  "tuning_pr_auc_best_candidate": 0.32026892356512154,
+  "selected_parameters": {
+    "n_estimators": 250,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "min_child_weight": 5
+  },
+  "split": "Insurance Client 15 uses a policy-grouped 80/20 split of rows 14,000,001 -> 15,000,000."
+}

@@ -1,0 +1,29 @@
+{
+  "rows_fit": 479796,
+  "rows_tuning": 159891,
+  "rows_calibration": 80018,
+  "rows_threshold": 79860,
+  "rows_test": 200435,
+  "train_fraud_rate": 0.07709942281115356,
+  "source_train_fraud_rate": 0.07709942281115356,
+  "test_fraud_rate": 0.07635393020181105,
+  "roc_auc": 0.7957310725153203,
+  "pr_auc": 0.3219062753708371,
+  "log_loss": 0.2123575508594513,
+  "brier_score": 0.05783388391137123,
+  "threshold_selected_on_threshold_split": 0.17431581929326076,
+  "precision_at_threshold": 0.5473137298253372,
+  "recall_at_threshold": 0.3235101934134867,
+  "f1_at_threshold": 0.406652977412731,
+  "true_positives": 4951,
+  "false_positives": 4095,
+  "false_negatives": 10353,
+  "tuning_pr_auc_best_candidate": 0.3113247042488877,
+  "selected_parameters": {
+    "n_estimators": 250,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "min_child_weight": 5
+  },
+  "split": "Insurance Client 06 uses a policy-grouped 80/20 split of rows 5,000,001 -> 6,000,000."
+}

@@ -12,9 +12,9 @@ import { ParticlesBackground } from './components/react-bits/ParticlesBackground
 import { ModernTabsWithHover } from './components/tabs/ModernTabsWithHover';
 import { JudgeDemoBar } from './components/demo/JudgeDemoBar';
 
-import { SilosAndNetworkView, DatasetStats } from './components/views/SilosAndNetworkView';
-import { FederatedEngineView } from './components/views/FederatedEngineView';
 import { IntelligenceAndGovView } from './components/views/IntelligenceAndGovView';
+import { CreditFraudView } from './components/views/CreditFraudView';
+import { InsuranceClaimsView } from './components/views/InsuranceClaimsView';
 
 import { Hero3DStage } from './components/hero/Hero3DStage';
 import { IntroPage } from './components/pages/IntroPage';
@@ -22,21 +22,23 @@ import { ArrowLeft, ArrowRight, Home } from 'lucide-react';
 
 export function App() {
   const parseHash = () => {
-    if (typeof window === 'undefined') return { page: 'intro', main: 'silos', sub: 'upload' };
+    if (typeof window === 'undefined') return { page: 'intro', main: 'intelligence', sub: 'showdown' };
     const raw = window.location.hash.replace('#', '');
     const [part1, part2] = raw.split('/');
     
     if (part1 === 'intro' || !part1) {
-      return { page: 'intro', main: 'silos', sub: 'upload' };
+      return { page: 'intro', main: 'intelligence', sub: 'showdown' };
     }
     
-    const validMains = ['silos', 'engine', 'intelligence'];
-    const main = validMains.includes(part1) ? part1 : 'silos';
-    
+    const validMains = ['intelligence', 'creditfraud', 'insurance'];
+    const main = validMains.includes(part1) ? part1 : 'intelligence';
+
     let sub = part2;
-    if (main === 'silos' && (!sub || !['upload', 'schema', 'topology'].includes(sub))) sub = 'upload';
-    if (main === 'engine' && (!sub || !['training', 'secagg', 'privacy'].includes(sub))) sub = 'training';
-    if (main === 'intelligence' && (!sub || !['showdown', 'shap', 'fairness', 'audit'].includes(sub))) sub = 'showdown';
+    if (!sub) {
+      if (main === 'creditfraud') sub = 'cf-showdown';
+      else if (main === 'insurance') sub = 'ins-showdown';
+      else sub = (part1 === 'dictionary' ? 'dictionary' : 'showdown');
+    }
     return { page: 'features', main, sub };
   };
 
@@ -44,7 +46,6 @@ export function App() {
   const [pageMode, setPageMode] = useState<'intro' | 'features'>(initialParsed.page as 'intro' | 'features');
   const [activeMainTab, setActiveMainTab] = useState<string>(initialParsed.main);
   const [activeSubTab, setActiveSubTab] = useState<string>(initialParsed.sub);
-  const [currentDataset, setCurrentDataset] = useState<DatasetStats | null>(null);
 
   // Typography Combination State (Auge Complete Family vs Inter vs Plus Jakarta)
   const [fontCombo, setFontCombo] = useState<'auge' | 'inter' | 'jakarta'>('auge');
@@ -53,7 +54,7 @@ export function App() {
   const [colorVibe, setColorVibe] = useState<'ocean-mint' | 'emerald-cyan'>('ocean-mint');
 
   // 3-Minute Demo State
-  const [demoStep, setDemoStep] = useState<number>(initialParsed.main === 'engine' ? 2 : initialParsed.main === 'intelligence' ? 3 : 1);
+  const [demoStep, setDemoStep] = useState<number>(1);
   const [isRunningAutoDemo, setIsRunningAutoDemo] = useState<boolean>(false);
 
   // Listen to hash change from browser or deep link
@@ -63,9 +64,6 @@ export function App() {
       setPageMode(parsed.page as 'intro' | 'features');
       setActiveMainTab(parsed.main);
       setActiveSubTab(parsed.sub);
-      if (parsed.main === 'silos') setDemoStep(1);
-      if (parsed.main === 'engine') setDemoStep(2);
-      if (parsed.main === 'intelligence') setDemoStep(3);
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -76,30 +74,16 @@ export function App() {
     setActiveMainTab(mainTabId);
 
     let resolvedSubTab = subTabId;
-    if (mainTabId === 'silos') {
-      if (!resolvedSubTab || !['upload', 'schema', 'topology'].includes(resolvedSubTab)) {
-        resolvedSubTab = 'upload';
-      }
-    } else if (mainTabId === 'engine') {
-      if (!resolvedSubTab || !['training', 'secagg', 'privacy'].includes(resolvedSubTab)) {
-        resolvedSubTab = 'training';
-      }
-    } else if (mainTabId === 'intelligence') {
-      if (!resolvedSubTab || !['showdown', 'shap', 'fairness', 'audit'].includes(resolvedSubTab)) {
-        resolvedSubTab = 'showdown';
-      }
+    if (!resolvedSubTab) {
+      if (mainTabId === 'creditfraud') resolvedSubTab = 'cf-showdown';
+      else if (mainTabId === 'insurance') resolvedSubTab = 'ins-showdown';
+      else resolvedSubTab = 'showdown';
     }
 
-    if (resolvedSubTab) {
-      setActiveSubTab(resolvedSubTab);
-    }
-
-    if (mainTabId === 'silos') setDemoStep(1);
-    if (mainTabId === 'engine') setDemoStep(2);
-    if (mainTabId === 'intelligence') setDemoStep(3);
+    setActiveSubTab(resolvedSubTab);
 
     if (typeof window !== 'undefined') {
-      window.location.hash = resolvedSubTab ? `${mainTabId}/${resolvedSubTab}` : mainTabId;
+      window.location.hash = `${mainTabId}/${resolvedSubTab}`;
     }
   };
 
@@ -303,56 +287,35 @@ export function App() {
                 />
               </div>
 
-              {/* Dynamic Animated Main View Switcher */}
+              {/* Dynamic Main View: Tab 1 (PaySim), Tab 2 (CreditFraud), Tab 3 (Insurance) */}
               <main className="min-h-[520px] pt-2">
-                <AnimatePresence mode="wait" initial={false}>
-                  {activeMainTab === 'silos' && (
-                    <motion.div
-                      key="silos-view"
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -14 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                    >
-                      <SilosAndNetworkView
-                        onDatasetLoaded={(stats) => setCurrentDataset(stats)}
-                        currentDataset={currentDataset}
-                        activeSubTab={activeSubTab}
-                        onSubTabChange={(subId) => setActiveSubTab(subId)}
-                      />
-                    </motion.div>
-                  )}
-
-                  {activeMainTab === 'engine' && (
-                    <motion.div
-                      key="engine-view"
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -14 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                    >
-                      <FederatedEngineView
-                        activeSubTab={activeSubTab}
-                        onSubTabChange={(subId) => setActiveSubTab(subId)}
-                      />
-                    </motion.div>
-                  )}
-
-                  {activeMainTab === 'intelligence' && (
-                    <motion.div
-                      key="intelligence-view"
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -14 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                    >
-                      <IntelligenceAndGovView
-                        activeSubTab={activeSubTab}
-                        onSubTabChange={(subId) => setActiveSubTab(subId)}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {activeMainTab === 'intelligence' && (
+                  <IntelligenceAndGovView
+                    activeSubTab={activeSubTab}
+                    onSubTabChange={(subId) => {
+                      setActiveSubTab(subId);
+                      if (typeof window !== 'undefined') window.location.hash = `intelligence/${subId}`;
+                    }}
+                  />
+                )}
+                {activeMainTab === 'creditfraud' && (
+                  <CreditFraudView
+                    activeSubTab={activeSubTab}
+                    onSubTabChange={(subId) => {
+                      setActiveSubTab(subId);
+                      if (typeof window !== 'undefined') window.location.hash = `creditfraud/${subId}`;
+                    }}
+                  />
+                )}
+                {activeMainTab === 'insurance' && (
+                  <InsuranceClaimsView
+                    activeSubTab={activeSubTab}
+                    onSubTabChange={(subId) => {
+                      setActiveSubTab(subId);
+                      if (typeof window !== 'undefined') window.location.hash = `insurance/${subId}`;
+                    }}
+                  />
+                )}
               </main>
             </motion.div>
           )}

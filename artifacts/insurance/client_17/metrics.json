@@ -1,0 +1,29 @@
+{
+  "rows_fit": 480490,
+  "rows_tuning": 159838,
+  "rows_calibration": 79933,
+  "rows_threshold": 80056,
+  "rows_test": 199683,
+  "train_fraud_rate": 0.0767245978780908,
+  "source_train_fraud_rate": 0.0767245978780908,
+  "test_fraud_rate": 0.07666651642853924,
+  "roc_auc": 0.7894615320746412,
+  "pr_auc": 0.304446365142969,
+  "log_loss": 0.21653319895267487,
+  "brier_score": 0.05917298421263695,
+  "threshold_selected_on_threshold_split": 0.15803979858756081,
+  "precision_at_threshold": 0.510350838962737,
+  "recall_at_threshold": 0.30596381213665164,
+  "f1_at_threshold": 0.3825703434475436,
+  "true_positives": 4684,
+  "false_positives": 4494,
+  "false_negatives": 10625,
+  "tuning_pr_auc_best_candidate": 0.31199793378477836,
+  "selected_parameters": {
+    "n_estimators": 250,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "min_child_weight": 5
+  },
+  "split": "Insurance Client 17 uses a policy-grouped 80/20 split of rows 16,000,001 -> 17,000,000."
+}
