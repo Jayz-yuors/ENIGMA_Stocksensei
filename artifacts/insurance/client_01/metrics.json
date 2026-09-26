@@ -1,0 +1,29 @@
+{
+  "rows_fit": 479514,
+  "rows_tuning": 160073,
+  "rows_calibration": 80320,
+  "rows_threshold": 79946,
+  "rows_test": 200147,
+  "train_fraud_rate": 0.0765340631341009,
+  "source_train_fraud_rate": 0.0765340631341009,
+  "test_fraud_rate": 0.07623896436119453,
+  "roc_auc": 0.7933391751069271,
+  "pr_auc": 0.3160708614426218,
+  "log_loss": 0.2135199010372162,
+  "brier_score": 0.0582067035138607,
+  "threshold_selected_on_threshold_split": 0.17981270290911247,
+  "precision_at_threshold": 0.5345550894237139,
+  "recall_at_threshold": 0.31732092535552786,
+  "f1_at_threshold": 0.3982399144631328,
+  "true_positives": 4842,
+  "false_positives": 4216,
+  "false_negatives": 10417,
+  "tuning_pr_auc_best_candidate": 0.31898506766031665,
+  "selected_parameters": {
+    "n_estimators": 250,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "min_child_weight": 5
+  },
+  "split": "Insurance Client 01 uses a policy-grouped 80/20 split of rows 1 -> 1,000,000."
+}
